@@ -34,6 +34,13 @@ func main() {
 
 	handler.GET("/edgesvc/turing/conversation/create", proxy)
 
+	handler.OPTIONS("/edgesvc/turing/conversation/create", func(ctx *gin.Context) {
+		ctx.Header("Access-Control-Allow-Origin", "*")
+		ctx.Header("Access-Control-Allow-Methods", "*")
+		ctx.Header("Access-Control-Allow-Headers", "*")
+		ctx.JSON(200, gin.H{"message": "ok"})
+	})
+
 	endless.ListenAndServe(os.Getenv("HOST")+":"+PORT, handler)
 }
 
@@ -66,6 +73,10 @@ func proxy(c *gin.Context) {
 	}
 	defer response.Body.Close()
 	c.Header("Content-Type", response.Header.Get("Content-Type"))
+	// Add CORS
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Access-Control-Allow-Methods", "*")
+	c.Header("Access-Control-Allow-Headers", "*")
 	// Get status code
 	c.Status(response.StatusCode)
 	c.Stream(func(w io.Writer) bool {
